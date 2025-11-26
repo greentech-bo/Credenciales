@@ -7,8 +7,8 @@
   <meta name="description" content="Página de verificación de credencial para personal autorizado en campo." />
   <style>
     :root{
-      --bg:#0f172a; /* slate-900 */
-      --card:#111827; /* gray-900 */
+      --bg:#0f172a;/* slate-900 */
+      --card:#111827;/* gray-900 */
       --text:#e5e7eb; /* gray-200 */
       --muted:#9ca3af; /* gray-400 */
       --accent:#22c55e; /* green-500 */
@@ -51,10 +51,6 @@
 
     .note{background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.15);padding:12px 14px;border-radius:12px;margin:0 20px 18px;color:var(--muted);font-size:13px}
     .tel{font-variant-numeric:tabular-nums}
-    /* Estilos para el estado NO ENCONTRADO */
-    .not-found .content, .not-found .actions { display: none; }
-    .not-found .hgroup h1::after { content: ' - NO ENCONTRADO'; color: var(--danger); }
-    .not-found .note { margin-bottom: 0; }
 
     @media (max-width:720px){
       .content{grid-template-columns: 1fr}
@@ -65,7 +61,7 @@
 </head>
 <body>
   <div class="wrap">
-    <div class="card" role="document" aria-label="Página de verificación de credencial" id="credentialCard">
+    <div class="card" role="document" aria-label="Página de verificación de credencial" >
       <header>
         <img class="logo" id="logo" alt="Logo" src="" onerror="this.style.display='none'" />
         <div class="hgroup">
@@ -76,7 +72,8 @@
 
       <div class="content">
         <div class="avatar">
-          <img class="logo" id="logo" alt="Logo" src="https://raw.githubusercontent.com/greentech-bo/Credenciales/main/Asset/GREENTECH%20LOGO.png" onerror="this.style.display='none'" />
+          <img class="logo" id="logo" alt="Foto del trabajador" src="https://raw.githubusercontent.com/greentech-bo/Credenciales/main/Asset/GREENTECH%20LOGO.png" onerror="this.style.display='none'" />
+         </div>
         <div class="fields">
           <div class="row"><div class="label">Nombre</div><div class="value" id="name"></div></div>
           <div class="row"><div class="label">Cargo</div><div class="value" id="role"></div></div>
@@ -300,4 +297,7 @@ const WORKERS = [
   document.querySelector('#lastUpdate time').textContent = new Intl.DateTimeFormat('es-BO', {dateStyle:'medium', timeStyle:'short'}).format(new Date());
 })();
 </script>
+</body>
+
+</html>
 
