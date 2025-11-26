@@ -110,6 +110,9 @@
 
 <script>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
 const WORKERS = [
   {
     // Tu trabajador original
@@ -120,17 +123,16 @@ const WORKERS = [
     activity: 'Relevamiento de postes eléctricos GREEN TECH-ELFEC',
     zone: 'Provincia Chapare',
     valid_from: '2025-10-15', // Importante: Formato YYYY-MM-DD
-    valid_to: '2025-12-31',   // Importante: Formato YYYY-MM-DD
+    valid_to: '2025-12-31',   // Importante: Formato YYYY-MM-DD
     supervisor: 'Ing. Miguel Angel Soria C.',
     phone: '+59165757126',
     issued: '2025-10-15',
     // Opcionales
-    photo: 'https://raw.githubusercontent.com/greentech-bo/Credenciales/main/Asset/fototrabajador.jpeg', // URL a la foto (reemplazar con la tuya)
+    photo: 'https://cdn.example.com/fotos/GT-CH-1.jpg', // ¡Reemplaza esta URL de ejemplo!
     permit: 'https://docs.google.com/document/d/PermisoGT-CH-1',
-    emergency: '+59165776126',
+    emergency: '+59165776126'
   },
   {
-  
     code: 'GT-777-01',
     name: 'Ing.Miguel Angel Soria Castellon',
     role: 'Gerente General',
@@ -142,12 +144,12 @@ const WORKERS = [
     supervisor: 'Ing Miguel Angel Soria Castellon',
     phone: '+59165776126',
     issued: '2025-11-01',
+    // URL CORREGIDA
     photo: 'https://raw.githubusercontent.com/greentech-bo/Credenciales/main/Asset/WhatsApp%20Image%202025-02-07%20at%208.15.11%20PM.jpeg',
     permit: 'https://docs.google.com/document/d/PermisoGT-777-01',
-  
+  
   },
   {
-  
     code: 'GT-777-02',
     name: 'Percy Soria Castellon',
     role: 'Técnico Eléctrico',
@@ -155,13 +157,12 @@ const WORKERS = [
     activity: 'Relevamiento de postes eléctricos GREEN TECH-ELFEC',
     zone: 'Cochabamba',
     valid_from: '2025-11-01',
-    valid_to: '2026-03-30', // Vencido para el día de hoy (25/11/2025)
+    valid_to: '2026-03-30',
     supervisor: 'Ing. Miguel Angel Soria C.',
     phone: '+59165776126',
     issued: '2025-11-01',
+    // URL CORREGIDA
     photo: 'https://raw.githubusercontent.com/greentech-bo/Credenciales/main/Asset/percy.jpg',
-    permit: 'https://docs.google.com/document/d/PermisoGT-777-02',
-      
   },
  {
     // Otro trabajador
@@ -172,12 +173,13 @@ const WORKERS = [
     activity: 'Relevamiento de postes eléctricos GREEN TECH-ELFEC',
     zone: 'Cochabamba',
     valid_from: '2025-11-01',
-    valid_to: '2026-03-30', // Vencido para el día de hoy (25/11/2025)
+    valid_to: '2026-03-30',
     supervisor: 'Ing. Miguel Angel Soria C.',
     phone: '+59165776126',
     issued: '2025-11-01',
-    photo: '',
-    },
+    // URL CORREGIDA
+    photo: 'https://raw.githubusercontent.com/greentech-bo/Credenciales/main/Asset/fototrabajador.jpeg',
+    },
  {
     // Otro trabajador
     code: 'GT-888-01',
@@ -187,36 +189,34 @@ const WORKERS = [
     activity: 'Relevamiento de postes eléctricos GREEN TECH-ELFEC',
     zone: 'Cochabamba',
     valid_from: '2025-11-01',
-    valid_to: '2026-03-30', // Vencido para el día de hoy (25/11/2025)
+    valid_to: '2026-03-30',
     supervisor: 'Ing. Miguel Angel Soria C.',
     phone: '+59165776126',
     issued: '2025-11-01',
-    photo: '' 
+    photo: '', 
 }];
 
 
-(function(){
   const qs = new URLSearchParams(location.search);
   const getParam = (k, def="") => (qs.get(k) ?? def).trim();
   const card = document.getElementById('credentialCard');
 
   // 1. OBTENER CÓDIGO DE VERIFICACIÓN de la URL (?code=...)
-  const verificationCode = getParam('code').toUpperCase();
+  const verificationCode = getParam('code').toUpperCase().trim(); 
   let workerData = null;
 
   if (verificationCode) {
     // 2. BUSCAR EL TRABAJADOR EN LA LISTA
-    workerData = WORKERS.find(w => w.code.toUpperCase() === verificationCode);
+    workerData = WORKERS.find(w => w.code.toUpperCase().trim() === verificationCode);
   }
-
+  
+  // 3. Si no hay datos, mostrar error (o si no se proveyó código)
   if (!workerData) {
-    // 3. SI NO SE ENCUENTRA (o no hay código), MOSTRAR MENSAJE DE ERROR
     card.classList.add('not-found');
     document.getElementById('note').innerHTML = `⚠️ No se encontró la credencial con el código **${verificationCode || 'vacío'}**. Por favor, verifique el código QR o intente con otro.`;
     document.getElementById('statusBadge').textContent = 'Código no encontrado';
     document.getElementById('statusBadge').className = 'badge error';
     document.getElementById('dateBadge').style.display = 'none';
-    // Ocultar botones de acción si no hay datos
     document.querySelectorAll('.actions a, .actions button').forEach(el => el.style.display = 'none');
     return; // Detener la ejecución del script
   }
@@ -233,7 +233,7 @@ const WORKERS = [
       document.getElementById(id).textContent = workerData[key];
     }
   }
-  
+  
   // 5. Lógica de Vigencia (valid_from, valid_to)
   const statusBadge = document.getElementById('statusBadge');
   const dateBadge = document.getElementById('dateBadge');
@@ -241,49 +241,53 @@ const WORKERS = [
   const fmt = (d)=> new Intl.DateTimeFormat('es-BO', {dateStyle:'medium', timeStyle: undefined}).format(d);
   const validFrom = workerData.valid_from;
   const validTo = workerData.valid_to;
-  
+  
   if(validFrom || validTo){
-    let fromD = validFrom ? new Date(validFrom) : null;
-    let toD = validTo ? new Date(validTo) : null;
+    // Es crucial que las fechas se puedan parsear correctamente (YYYY-MM-DD)
+    let fromD = validFrom ? new Date(validFrom + 'T00:00:00') : null; 
+    let toD = validTo ? new Date(validTo + 'T23:59:59') : null; 
     let text = '';
 
     if(fromD && toD){ text = `${fmt(fromD)} – ${fmt(toD)}`; }
     else if(fromD){ text = `Desde ${fmt(fromD)}`; }
     else if(toD){ text = `Hasta ${fmt(toD)}`; }
-    
+    
     document.getElementById('valid').textContent = text;
 
-    const validNow = (!fromD || now>=fromD) && (!toD || now<=toD);
+    // Comprobación estricta de vigencia
+    const validNow = (!fromD || now.getTime() >= fromD.getTime()) && (!toD || now.getTime() <= toD.getTime()); 
     statusBadge.textContent = validNow ? 'Credencial válida' : 'VENCIDA';
     statusBadge.className = 'badge ' + (validNow ? 'ok' : 'warn');
   } else {
-    // Si no hay fechas definidas, asumimos que está válida
     statusBadge.textContent = 'Credencial válida';
     statusBadge.className = 'badge ok';
     document.getElementById('valid').textContent = 'Permanente';
   }
 
-  // 6. Propiedades Opcionales
+  // 6. Propiedades Opcionales (URLs y Teléfonos)
   const logoEl = document.getElementById('logo');
-  if(workerData.logo){ logoEl.src = workerData.logo; logoEl.style.display='inline'; } else { logoEl.style.display='none'; }
+  // El logo se manejará desde el HTML si workerData.logo está vacío.
+  if(workerData.logo){ logoEl.src = workerData.logo; logoEl.style.display='inline'; } 
 
   const photoEl = document.getElementById('photo');
-  if(workerData.photo){ photoEl.src = workerData.photo; }
+  // Esto es lo que causaba el error. Ahora photoEl está garantizado de existir.
+  if(workerData.photo){ photoEl.src = workerData.photo; } 
 
   const permitBtn = document.getElementById('permitBtn');
-  if(workerData.permit){ permitBtn.href = workerData.permit; } else { permitBtn.style.display='none'; }
+  if(workerData.permit){ permitBtn.href = workerData.permit; permitBtn.style.display='inline-flex'; } else { permitBtn.style.display='none'; }
 
   const phoneText = workerData.phone?.trim();
   const callBtn = document.getElementById('callBtn');
-  if(phoneText){ callBtn.href = `tel:${phoneText.replace(/\s+/g,'')}`; } else { callBtn.style.display='none'; }
+  if(phoneText){ callBtn.href = `tel:${phoneText.replace(/\s+/g,'')}`; callBtn.style.display='inline-flex'; } else { callBtn.style.display='none'; }
 
   const emergencyBtn = document.getElementById('emergencyBtn');
-  if(workerData.emergency){ emergencyBtn.href = `tel:${workerData.emergency.replace(/\s+/g,'')}`; }
+  const emergencyNumber = workerData.emergency;
+  if(emergencyNumber){ emergencyBtn.href = `tel:${emergencyNumber.replace(/\s+/g,'')}`; emergencyBtn.style.display='inline-flex'; }
   else { emergencyBtn.style.display='none'; }
 
   // Issue date badge
-  if(workerData.issued){ dateBadge.textContent = `Emitida: ${fmt(new Date(workerData.issued))}`; } else { dateBadge.style.display='none'; }
-  
+  if(workerData.issued){ dateBadge.textContent = `Emitida: ${fmt(new Date(workerData.issued))}`; dateBadge.style.display='inline-flex'; } else { dateBadge.style.display='none'; }
+  
   // 7. Botón Compartir
   const shareBtn = document.getElementById('shareBtn');
   shareBtn.addEventListener('click', async ()=>{
@@ -295,7 +299,9 @@ const WORKERS = [
 
   // 8. Hora de última actualización (lado del cliente)
   document.querySelector('#lastUpdate time').textContent = new Intl.DateTimeFormat('es-BO', {dateStyle:'medium', timeStyle:'short'}).format(new Date());
-})();
+
+}); 
+
 </script>
 </body>
 
